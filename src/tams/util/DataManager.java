@@ -599,4 +599,26 @@ public class DataManager {
         
         return result;
     }
+    
+    /**
+     * Remove a review.
+     * 
+     * @param review the review to remove
+     * @return true if successfully removed, false otherwise
+     */
+    public boolean removeReview(Review review) {
+        if (review == null) {
+            return false;
+        }
+        
+        String reviewId = review.getReviewId();
+        reviewMap.remove(reviewId);
+        boolean result = reviews.remove(review);
+        
+        if (result) {
+            saveReviews();
+        }
+        
+        return result;
+    }
 } 

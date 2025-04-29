@@ -385,7 +385,7 @@ public class BookingsPanel extends BasePanel {
         });
         
         // Number of travelers
-        JSpinner travelersSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 10, 1));
+        JSpinner travelersSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 20, 1));
         
         // Status selection
         JComboBox<BookingStatus> statusComboBox = new JComboBox<>(
@@ -494,14 +494,42 @@ public class BookingsPanel extends BasePanel {
         JPanel formPanel = new JPanel(new GridLayout(3, 2, 10, 10));
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
-        // Number of travelers
-        JSpinner travelersSpinner = new JSpinner(
-            new SpinnerNumberModel(selectedBooking.getNumTravelers(), 1, 10, 1));
+        // Number of travelers - Handle safely to prevent IllegalArgumentException
+        int currentTravelers = 1; // Default value
+        try {
+            int numTravelers = selectedBooking.getNumTravelers();
+            // Ensure we have a valid value (at least 1)
+            currentTravelers = Math.max(1, numTravelers);
+        } catch (Exception e) {
+            // If there's any error retrieving the number of travelers, use default
+            System.out.println("Warning: Error getting number of travelers, using default: " + e.getMessage());
+        }
         
-        // Status selection
-        JComboBox<BookingStatus> statusComboBox = new JComboBox<>(
-            new BookingStatus[]{BookingStatus.CONFIRMED, BookingStatus.PENDING});
-        statusComboBox.setSelectedItem(selectedBooking.getStatus());
+        // Set maximum travelers to a safe large value
+        int maxTravelers = Math.max(100, currentTravelers);
+        
+        // Create spinner with safe values
+        JSpinner travelersSpinner = new JSpinner(
+            new SpinnerNumberModel(currentTravelers, 1, maxTravelers, 1));
+        
+        // Status selection - Include all possible statuses to prevent issues
+        JComboBox<BookingStatus> statusComboBox = new JComboBox<>(BookingStatus.values());
+        
+        // Set the selected status safely
+        try {
+            BookingStatus currentStatus = selectedBooking.getStatus();
+            if (currentStatus != null) {
+                statusComboBox.setSelectedItem(currentStatus);
+            } else {
+                statusComboBox.setSelectedItem(BookingStatus.PENDING); // Default to PENDING if null
+            }
+        } catch (Exception e) {
+            // If there's any error setting the status, select PENDING as default
+            statusComboBox.setSelectedItem(BookingStatus.PENDING);
+            System.out.println("Warning: Error setting booking status, using default: " + e.getMessage());
+        }
+        
+        // Add renderer for status display
         statusComboBox.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, 
@@ -514,9 +542,17 @@ public class BookingsPanel extends BasePanel {
             }
         });
         
-        // Special requests
-        JTextField specialRequestsField = new JTextField(
-            selectedBooking.getSpecialRequests(), 20);
+        // Special requests - Handle safely
+        String specialRequests = "";
+        try {
+            String requests = selectedBooking.getSpecialRequests();
+            if (requests != null) {
+                specialRequests = requests;
+            }
+        } catch (Exception e) {
+            System.out.println("Warning: Error getting special requests: " + e.getMessage());
+        }
+        JTextField specialRequestsField = new JTextField(specialRequests, 20);
         
         // Add components to form
         formPanel.add(new JLabel("Number of Travelers:"));
@@ -544,19 +580,23 @@ public class BookingsPanel extends BasePanel {
                 // Get values
                 int numTravelers = (int) travelersSpinner.getValue();
                 BookingStatus status = (BookingStatus) statusComboBox.getSelectedItem();
-                String specialRequests = specialRequestsField.getText().trim();
+                String requestsText = specialRequestsField.getText().trim();
                 
                 // Update the booking
                 controller.updateBooking(
                     selectedBooking,
                     numTravelers,
                     status,
-                    specialRequests
+                    requestsText
                 );
+                
+                // Store booking details before refreshing
+                String customerName = selectedBooking.getCustomer().getName();
+                String packageName = selectedBooking.getPackage().getName();
                 
                 dialog.dispose();
                 refreshData();
-                updateStatus("Booking updated");
+                updateStatus("Booking updated for " + customerName + " - " + packageName);
                 
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(dialog, 
@@ -600,8 +640,10 @@ public class BookingsPanel extends BasePanel {
                 boolean success = controller.deleteBooking(selectedBooking);
                 
                 if (success) {
+                    String customerName = selectedBooking.getCustomer().getName();
+                    String packageName = selectedBooking.getPackage().getName();
                     refreshData();
-                    updateStatus("Booking deleted");
+                    updateStatus("Booking deleted for " + customerName + " - " + packageName);
                 } else {
                     JOptionPane.showMessageDialog(this, 
                         "Failed to delete booking.",
@@ -732,9 +774,13 @@ public class BookingsPanel extends BasePanel {
                 // Update the booking status
                 controller.updateBookingStatus(selectedBooking, newStatus);
                 
+                // Store information before refreshing
+                String statusName = newStatus.getDisplayName();
+                String customerName = selectedBooking.getCustomer().getName();
+                
                 dialog.dispose();
                 refreshData();
-                updateStatus("Booking status updated to " + newStatus.getDisplayName());
+                updateStatus("Booking status for " + customerName + " updated to " + statusName);
                 
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(dialog, 

@@ -451,9 +451,12 @@ public class CustomersPanel extends BasePanel {
                     address
                 );
                 
+                // Store the name before we refresh
+                String customerName = name;
+                
                 dialog.dispose();
                 refreshData();
-                updateStatus("Customer updated: " + selectedCustomer.getName());
+                updateStatus("Customer updated: " + customerName);
                 
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(dialog, 
@@ -495,8 +498,9 @@ public class CustomersPanel extends BasePanel {
                 boolean success = controller.deleteCustomer(selectedCustomer);
                 
                 if (success) {
+                    String customerName = selectedCustomer.getName();
                     refreshData();
-                    updateStatus("Customer deleted");
+                    updateStatus("Customer deleted: " + customerName);
                 } else {
                     JOptionPane.showMessageDialog(this, 
                         "Failed to delete customer.",

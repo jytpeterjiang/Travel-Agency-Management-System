@@ -499,9 +499,12 @@ public class TravelPackagesPanel extends BasePanel {
                     accommodation
                 );
                 
+                // Store the name before we refresh
+                String packageName = name;
+                
                 dialog.dispose();
                 refreshData();
-                updateStatus("Package updated: " + selectedPackage.getName());
+                updateStatus("Package updated: " + packageName);
                 
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(dialog, 
@@ -543,8 +546,9 @@ public class TravelPackagesPanel extends BasePanel {
                 boolean success = controller.deleteTravelPackage(selectedPackage);
                 
                 if (success) {
+                    String packageName = selectedPackage.getName();
                     refreshData();
-                    updateStatus("Package deleted");
+                    updateStatus("Package deleted: " + packageName);
                 } else {
                     JOptionPane.showMessageDialog(this, 
                         "Failed to delete package.",

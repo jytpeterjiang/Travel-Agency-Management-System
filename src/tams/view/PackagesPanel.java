@@ -519,11 +519,27 @@ public class PackagesPanel extends BasePanel {
                 // Save data
                 controller.saveData();
                 
-                // Store the name before we clear the selection
+                // Store the package ID before refreshing
+                String packageId = selectedPackage.getServiceId();
                 String packageName = selectedPackage.getName();
                 
                 dialog.dispose();
                 refreshData();
+                
+                // Find and reselect the edited package
+                TravelPackage editedPackage = findPackageById(packageId);
+                if (editedPackage != null) {
+                    selectedPackage = editedPackage;
+                    // Find the row index of the edited package
+                    for (int i = 0; i < tableModel.getRowCount(); i++) {
+                        if (tableModel.getValueAt(i, 0).equals(packageId)) {
+                            packagesTable.setRowSelectionInterval(i, i);
+                            break;
+                        }
+                    }
+                }
+                
+                updateButtonStates();
                 updateStatus("Package updated: " + packageName);
                 
             } catch (Exception ex) {
@@ -568,11 +584,14 @@ public class PackagesPanel extends BasePanel {
                     return;
                 }
                 
+                // Store package name before deletion
+                String packageName = selectedPackage.getName();
+                
                 // Delete the package from the controller
                 controller.deletePackage(selectedPackage);
                 
                 refreshData();
-                updateStatus("Package deleted");
+                updateStatus("Package deleted: " + packageName);
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, 
                     "Error deleting package: " + e.getMessage(),

@@ -209,6 +209,36 @@ public class ReviewsPanel extends BasePanel {
         if (tableModel != null) {
             tableModel.setRowCount(0);
             
+            // Update package filter dropdown to include any new packages
+            if (packageComboBox != null) {
+                String selectedPackage = (String) packageComboBox.getSelectedItem();
+                packageComboBox.removeAllItems();
+                
+                // Add "All Packages" as the first item
+                packageComboBox.addItem("All Packages");
+                
+                // Add all current packages
+                for (TravelPackage pkg : controller.getAllTravelPackages()) {
+                    packageComboBox.addItem(pkg.getName());
+                }
+                
+                // Restore previous selection if it still exists
+                if (selectedPackage != null) {
+                    boolean found = false;
+                    for (int i = 0; i < packageComboBox.getItemCount(); i++) {
+                        if (selectedPackage.equals(packageComboBox.getItemAt(i))) {
+                            packageComboBox.setSelectedIndex(i);
+                            found = true;
+                            break;
+                        }
+                    }
+                    // If previous selection not found, default to "All Packages"
+                    if (!found) {
+                        packageComboBox.setSelectedIndex(0);
+                    }
+                }
+            }
+            
             // Get all reviews from the controller
             ArrayList<Review> reviews = controller.getReviews();
             
@@ -429,9 +459,13 @@ public class ReviewsPanel extends BasePanel {
                 // Create the review
                 Review newReview = controller.addReview(travelPackage, customer, rating, comment);
                 
+                // Store customer and package names before refreshing
+                String customerName = customer.getName();
+                String packageName = travelPackage.getName();
+                
                 dialog.dispose();
                 refreshData();
-                updateStatus("Review added successfully");
+                updateStatus("Review added for " + customerName + " on " + packageName);
                 
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(dialog, 
@@ -510,9 +544,12 @@ public class ReviewsPanel extends BasePanel {
                 selectedReview.setRating(rating);
                 selectedReview.setComment(comment);
                 
+                // Store customer name before refreshing
+                String customerName = selectedReview.getCustomer().getName();
+                
                 dialog.dispose();
                 refreshData();
-                updateStatus("Review updated successfully");
+                updateStatus("Review updated for " + customerName);
                 
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(dialog, 
@@ -540,21 +577,15 @@ public class ReviewsPanel extends BasePanel {
         
         if (confirm == JOptionPane.YES_OPTION) {
             try {
-                // Delete the review from travel packages
-                boolean removed = false;
-                for (TravelPackage pkg : controller.getAllTravelPackages()) {
-                    ArrayList<Review> reviews = pkg.getReviews();
-                    if (reviews.contains(selectedReview)) {
-                        reviews.remove(selectedReview);
-                        removed = true;
-                    }
-                }
+                // Store customer name before deleting the review
+                String customerName = selectedReview.getCustomer().getName();
                 
-                // Delete the review from the data manager
-                if (removed) {
-                    controller.saveData();
+                // Use the controller to delete the review
+                boolean success = controller.deleteReview(selectedReview);
+                
+                if (success) {
                     refreshData();
-                    updateStatus("Review deleted successfully");
+                    updateStatus("Review deleted for " + customerName);
                 } else {
                     JOptionPane.showMessageDialog(this, 
                         "Failed to delete review.",

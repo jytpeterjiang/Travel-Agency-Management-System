@@ -86,25 +86,62 @@ public class ReportsPanel extends BasePanel {
         String selectedReportType = (String) reportTypeComboBox.getSelectedItem();
         
         if ("Customer Booking History".equals(selectedReportType)) {
+            // Create a more compact panel with FlowLayout instead of GridLayout
+            parameterPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+            
             // Add customer selection dropdown
             ArrayList<Customer> customers = controller.getAllCustomers();
             if (!customers.isEmpty()) {
                 JLabel customerLabel = new JLabel("Select Customer:");
+                
+                // Create custom renderer for the combo box to limit the width
                 JComboBox<Customer> customerComboBox = new JComboBox<>(
                     customers.toArray(new Customer[0]));
                 customerComboBox.setName("customerComboBox");
+                
+                // Set smaller dimensions for the combo box
+                customerComboBox.setPreferredSize(new Dimension(160, 25));
+                customerComboBox.setMaximumSize(new Dimension(160, 25));
+                
+                // Add a custom renderer to limit the display width of customer names
+                customerComboBox.setRenderer(new DefaultListCellRenderer() {
+                    @Override
+                    public Component getListCellRendererComponent(JList<?> list, Object value, 
+                            int index, boolean isSelected, boolean cellHasFocus) {
+                        super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                        
+                        if (value instanceof Customer) {
+                            Customer customer = (Customer) value;
+                            String name = customer.getName();
+                            if (name.length() > 16) {
+                                name = name.substring(0, 13) + "...";
+                            }
+                            setText(name);
+                        }
+                        return this;
+                    }
+                });
+                
                 parameterPanel.add(customerLabel);
                 parameterPanel.add(customerComboBox);
             } else {
                 parameterPanel.add(new JLabel("No customers available"));
             }
         } else if ("Bookings by Status".equals(selectedReportType)) {
+            // Create a more compact panel with FlowLayout instead of GridLayout
+            parameterPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+            
             // Add status selection dropdown
             JLabel statusLabel = new JLabel("Status:");
             JComboBox<BookingStatus> statusComboBox = new JComboBox<>(BookingStatus.values());
             statusComboBox.setName("statusComboBox");
+            statusComboBox.setPreferredSize(new Dimension(160, 25));
+            statusComboBox.setMaximumSize(new Dimension(160, 25));
             parameterPanel.add(statusLabel);
             parameterPanel.add(statusComboBox);
+        } else {
+            // Reset to default grid layout for other report types
+            parameterPanel.setLayout(new GridLayout(0, 1, 5, 5));
         }
         
         parameterPanel.revalidate();

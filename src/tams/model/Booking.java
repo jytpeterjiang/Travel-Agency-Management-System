@@ -150,10 +150,11 @@ public class Booking {
     /**
      * Get the number of travelers.
      * 
-     * @return the number of travelers
+     * @return the number of travelers (always at least 1)
      */
     public int getNumTravelers() {
-        return numTravelers;
+        // Ensure we always return at least 1 traveler
+        return Math.max(1, numTravelers);
     }
     
     /**

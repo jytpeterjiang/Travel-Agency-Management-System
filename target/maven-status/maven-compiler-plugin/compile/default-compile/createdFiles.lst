@@ -34,6 +34,7 @@ tams\view\BookingsPanel$5.class
 tams\view\BookingsPanel$1.class
 tams\model\ItineraryDay.class
 tams\model\Activity.class
+tams\view\ReportsPanel$3.class
 tams\view\TravelPackagesPanel.class
 tams\view\BookingsPanel$6.class
 tams\model\Itinerary.class

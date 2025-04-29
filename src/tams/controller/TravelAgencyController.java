@@ -612,4 +612,31 @@ public class TravelAgencyController {
         booking.updateStatus(status);
         return true;
     }
+    
+    /**
+     * Delete a review.
+     * 
+     * @param review the review to delete
+     * @return true if deletion was successful
+     */
+    public boolean deleteReview(Review review) {
+        if (review == null) {
+            return false;
+        }
+        
+        // Remove review from all packages that might contain it
+        for (TravelPackage pkg : getAllTravelPackages()) {
+            ArrayList<Review> reviews = pkg.getReviews();
+            reviews.remove(review);
+        }
+        
+        // Remove from data manager
+        boolean result = dataManager.removeReview(review);
+        
+        if (result) {
+            saveData();
+        }
+        
+        return result;
+    }
 } 
