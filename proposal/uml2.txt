@@ -1,0 +1,32 @@
+graph TD
+    subgraph "Main Window"
+        MenuBar["Menu Bar (File, Edit, View, Help)"]
+        TabBar["Tab Bar (Packages, Customers, Bookings, Reports, Reviews)"]
+        
+        subgraph "Left Panel"
+            FilterSection["Search & Filters"]
+            StatusFilter["Booking Status Checkboxes"]
+            DateRangeFilter["Date Range Selectors"]
+            SearchButton["Search Button"]
+        end
+        
+        subgraph "Main Content Area"
+            TableHeader["Table Headers (ID, Customer, Package, Status)"]
+            TableContent["Booking Records Table"]
+            ActionButtons["Action Buttons (New, Edit, Delete)"]
+        end
+        
+        StatusBar["Status Bar"]
+    end
+    
+    MenuBar --- TabBar
+    TabBar --- FilterSection
+    FilterSection --- StatusFilter
+    FilterSection --- DateRangeFilter
+    FilterSection --- SearchButton
+    
+    TabBar --- TableHeader
+    TableHeader --- TableContent
+    TableContent --- ActionButtons
+    
+    ActionButtons --- StatusBar

@@ -1,0 +1,1 @@
+java -jar target/tams-1.0-SNAPSHOT-jar-with-dependencies.jar
