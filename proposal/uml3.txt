@@ -1,0 +1,68 @@
+@startuml
+package "tams.controller" {
+    class TravelAgencyController {
+        -dataManager: DataManager
+        -packages: List<TravelPackage>
+        -customers: List<Customer>
+        -bookings: List<Booking>
+        -reviews: List<Review>
+        -activities: List<Activity>
+        +addPackage(): void
+        +updatePackage(): void
+        +deletePackage(): void
+        +searchPackages(): List<TravelPackage>
+        +addCustomer(): void
+        +updateCustomer(): void
+        +deleteCustomer(): void
+        +searchCustomers(): List<Customer>
+        +createBooking(): void
+        +updateBooking(): void
+        +cancelBooking(): void
+        +searchBookings(): List<Booking>
+        +processPayment(): boolean
+        +addReview(): void
+        +searchReviews(): List<Review>
+        +addActivity(): void
+        +updateActivity(): void
+        +deleteActivity(): void
+        +searchActivities(): List<Activity>
+        +generateReport(): void
+        +loadData(): void
+        +saveData(): void
+    }
+}
+
+package "tams.util" {
+    class DataManager {
+        -customerFile: String
+        -packageFile: String
+        -bookingFile: String
+        -reviewFile: String
+        -activityFile: String
+        +loadCustomers(): List<Customer>
+        +saveCustomers(): void
+        +loadPackages(): List<TravelPackage>
+        +savePackages(): void
+        +loadBookings(): List<Booking>
+        +saveBookings(): void
+        +loadReviews(): List<Review>
+        +saveReviews(): void
+        +loadActivities(): List<Activity>
+        +saveActivities(): void
+        -readFromJSON(): String
+        -writeToJSON(): void
+        +backup(): void
+    }
+}
+TravelAgencyController -- DataManager
+package "tams.exceptions" {
+    class BookingException {
+        +BookingException(message: String)
+    }
+    
+    class PaymentProcessException {
+        +PaymentProcessException(message: String)
+    }
+}
+
+@enduml

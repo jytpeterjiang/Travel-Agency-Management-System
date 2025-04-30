@@ -216,7 +216,7 @@ public class DataManager {
     }
     
     /**
-     * Load travel packages from file.
+     * Load packages from file.
      */
     @SuppressWarnings("unchecked")
     private void loadPackages() {
@@ -258,6 +258,51 @@ public class DataManager {
                     }
                 }
                 
+                // Load itinerary if present
+                JSONObject itineraryJson = (JSONObject) packageJson.get("itinerary");
+                if (itineraryJson != null) {
+                    String itineraryId = (String) itineraryJson.get("id");
+                    String itineraryName = (String) itineraryJson.get("name");
+                    
+                    // Create a new itinerary
+                    Itinerary itinerary = new Itinerary(itineraryId, itineraryName);
+                    
+                    // Load days
+                    JSONArray daysArray = (JSONArray) itineraryJson.get("days");
+                    if (daysArray != null) {
+                        for (Object dayObj : daysArray) {
+                            JSONObject dayJson = (JSONObject) dayObj;
+                            
+                            int dayNumber = ((Long) dayJson.get("dayNumber")).intValue();
+                            String notes = (String) dayJson.get("notes");
+                            
+                            // Create a new day
+                            ItineraryDay day = new ItineraryDay(dayNumber, notes);
+                            
+                            // Add activities to the day
+                            JSONArray dayActivitiesArray = (JSONArray) dayJson.get("activities");
+                            if (dayActivitiesArray != null) {
+                                for (Object actObj : dayActivitiesArray) {
+                                    String activityId = (String) actObj;
+                                    Activity activity = activityMap.get(activityId);
+                                    if (activity != null) {
+                                        day.addActivity(activity);
+                                    }
+                                }
+                            }
+                            
+                            // Add the day to the itinerary
+                            itinerary.addDay(day);
+                        }
+                    }
+                    
+                    // Replace the default itinerary with our loaded one
+                    travelPackage.getItinerary().getDays().clear(); // Clear default days
+                    for (ItineraryDay day : itinerary.getDays()) {
+                        travelPackage.getItinerary().addDay(day);
+                    }
+                }
+                
                 packages.add(travelPackage);
                 packageMap.put(id, travelPackage);
             }
@@ -268,7 +313,7 @@ public class DataManager {
     }
     
     /**
-     * Save travel packages to file.
+     * Save packages to file.
      */
     @SuppressWarnings("unchecked")
     private void savePackages() {
@@ -290,6 +335,34 @@ public class DataManager {
                 activitiesArray.add(activity.getActivityId());
             }
             packageJson.put("activities", activitiesArray);
+            
+            // Save itinerary data
+            Itinerary itinerary = travelPackage.getItinerary();
+            if (itinerary != null) {
+                JSONObject itineraryJson = new JSONObject();
+                itineraryJson.put("id", itinerary.getItineraryId());
+                itineraryJson.put("name", itinerary.getName());
+                
+                // Save itinerary days
+                JSONArray daysArray = new JSONArray();
+                for (ItineraryDay day : itinerary.getDays()) {
+                    JSONObject dayJson = new JSONObject();
+                    dayJson.put("dayNumber", day.getDayNumber());
+                    dayJson.put("notes", day.getNotes());
+                    
+                    // Save day activities
+                    JSONArray dayActivitiesArray = new JSONArray();
+                    for (Activity activity : day.getActivities()) {
+                        dayActivitiesArray.add(activity.getActivityId());
+                    }
+                    dayJson.put("activities", dayActivitiesArray);
+                    
+                    daysArray.add(dayJson);
+                }
+                itineraryJson.put("days", daysArray);
+                
+                packageJson.put("itinerary", itineraryJson);
+            }
             
             packagesArray.add(packageJson);
         }

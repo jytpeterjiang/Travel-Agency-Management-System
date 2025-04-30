@@ -1,0 +1,9 @@
+package "tams.exceptions" {
+    class BookingException {
+        +BookingException(message: String)
+    }
+    
+    class PaymentProcessException {
+        +PaymentProcessException(message: String)
+    }
+}

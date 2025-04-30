@@ -1,32 +1,154 @@
-graph TD
-    subgraph "Main Window"
-        MenuBar["Menu Bar (File, Edit, View, Help)"]
-        TabBar["Tab Bar (Packages, Customers, Bookings, Reports, Reviews)"]
-        
-        subgraph "Left Panel"
-            FilterSection["Search & Filters"]
-            StatusFilter["Booking Status Checkboxes"]
-            DateRangeFilter["Date Range Selectors"]
-            SearchButton["Search Button"]
-        end
-        
-        subgraph "Main Content Area"
-            TableHeader["Table Headers (ID, Customer, Package, Status)"]
-            TableContent["Booking Records Table"]
-            ActionButtons["Action Buttons (New, Edit, Delete)"]
-        end
-        
-        StatusBar["Status Bar"]
-    end
+@startuml
+skinparam classFontSize 16
+skinparam classAttributeFontSize 14
+skinparam defaultFontName "Arial"
+skinparam class {
+    BackgroundColor White
+    BorderColor DarkSlateGray
+    ArrowColor DarkSlateGray
+    minimumHeight 150
+}
+package "tams.view" {
+    class MainWindow {
+        -tabbedPane: JTabbedPane
+        -packagesPanel: PackagesPanel
+        -customersPanel: CustomersPanel
+        -bookingsPanel: BookingsPanel
+        -reviewsPanel: ReviewsPanel
+        -reportsPanel: ReportsPanel
+        -activitiesPanel: ActivitiesPanel
+        +initialize(): void
+        +setupMenu(): void
+        -createTabs(): void
+        +refreshAllTabs(): void
+    }
     
-    MenuBar --- TabBar
-    TabBar --- FilterSection
-    FilterSection --- StatusFilter
-    FilterSection --- DateRangeFilter
-    FilterSection --- SearchButton
+    abstract class BasePanel {
+        #controller: TravelAgencyController
+        #dataManager: DataManager
+        #titleLabel: JLabel
+        #setupUI(): void
+        #addComponentToPanel(): void
+        #refreshData(): void
+        #showConfirmDialog(): int
+    }
     
-    TabBar --- TableHeader
-    TableHeader --- TableContent
-    TableContent --- ActionButtons
+    class PackagesPanel {
+        -packagesList: JList<TravelPackage>
+        -packageDetailsPanel: JPanel
+        -addButton: JButton
+        -editButton: JButton
+        -deleteButton: JButton
+        -searchField: JTextField
+        +initialize(): void
+        -setupPackageList(): void
+        -setupDetailsPanel(): void
+        -setupSearchControls(): void
+        -showPackageDetails(): void
+        +refreshData(): void
+    }
     
-    ActionButtons --- StatusBar
+    class CustomersPanel {
+        -customersList: JList<Customer>
+        -customerDetailsPanel: JPanel
+        -addButton: JButton
+        -editButton: JButton
+        -deleteButton: JButton
+        -searchField: JTextField
+        +initialize(): void
+        -setupCustomerList(): void
+        -setupDetailsPanel(): void
+        -setupSearchControls(): void
+        -showCustomerDetails(): void
+        +refreshData(): void
+    }
+    
+    class BookingsPanel {
+        -bookingsList: JList<Booking>
+        -bookingDetailsPanel: JPanel
+        -addButton: JButton
+        -editButton: JButton
+        -deleteButton: JButton
+        -statusComboBox: JComboBox<BookingStatus>
+        -dateRangePicker: JPanel
+        +initialize(): void
+        -setupBookingList(): void
+        -setupDetailsPanel(): void
+        -setupFilterControls(): void
+        -showBookingDetails(): void
+        -processPayment(): void
+        +refreshData(): void
+    }
+    
+    class ReviewsPanel {
+        -reviewsList: JList<Review>
+        -reviewDetailsPanel: JPanel
+        -packageSelector: JComboBox<TravelPackage>
+        -ratingFilter: JSlider
+        -dateRangePicker: JPanel
+        +initialize(): void
+        -setupReviewList(): void
+        -setupDetailsPanel(): void
+        -setupFilterControls(): void
+        -showReviewDetails(): void
+        +refreshData(): void
+    }
+    
+    class ReportsPanel {
+        -reportTypeSelector: JComboBox<String>
+        -dateRangePicker: JPanel
+        -chartPanel: JPanel
+        -generateButton: JButton
+        -exportButton: JButton
+        +initialize(): void
+        -setupControls(): void
+        -generateBookingReport(): void
+        -generateRevenueReport(): void
+        -generateCustomerReport(): void
+        -generateDestinationReport(): void
+        -exportReportToPDF(): void
+        +refreshData(): void
+    }
+    
+    class ActivitiesPanel {
+        -activitiesList: JList<Activity>
+        -activityDetailsPanel: JPanel
+        -addButton: JButton
+        -editButton: JButton
+        -deleteButton: JButton
+        -searchField: JTextField
+        +initialize(): void
+        -setupActivityList(): void
+        -setupDetailsPanel(): void
+        -setupSearchControls(): void
+        -showActivityDetails(): void
+        +refreshData(): void
+    }
+    
+    class TravelPackagesPanel {
+        -packagesList: JList<TravelPackage>
+        -packageDetailsPanel: JPanel
+        -addButton: JButton
+        -editButton: JButton
+        -deleteButton: JButton
+        -searchField: JTextField
+        +initialize(): void
+        -setupPackageList(): void
+        -setupDetailsPanel(): void
+        -setupSearchControls(): void
+        -showPackageDetails(): void
+        +refreshData(): void
+    }
+    
+    MainWindow *-- BasePanel
+    BasePanel <|-- PackagesPanel
+    BasePanel <|-- CustomersPanel
+    BasePanel <|-- BookingsPanel
+    BasePanel <|-- ReviewsPanel
+    BasePanel <|-- ReportsPanel
+    BasePanel <|-- ActivitiesPanel
+    BasePanel <|-- TravelPackagesPanel
+}
+
+
+@enduml

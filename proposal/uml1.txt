@@ -1,138 +1,163 @@
-@startuml Travel Agency Management System
-
-' Interfaces
-interface Bookable {
-  +calculatePrice(): double
-  +checkAvailability(): boolean
-  +makeReservation(): boolean
+@startuml
+package "tams.model" {
+    abstract class TravelService {
+        -name: String
+        -description: String
+        -basePrice: double
+        #abstract calculateTotalPrice(): double
+        +getName(): String
+        +getDescription(): String
+        +getBasePrice(): double
+    }
+    
+    class TravelPackage {
+        -destination: String
+        -duration: int
+        -maxCapacity: int
+        -currentBookings: int
+        -activities: List<Activity>
+        -itinerary: Itinerary
+        -reviews: List<Review>
+        +calculateTotalPrice(): double
+        +checkAvailability(): boolean
+        +makeReservation(): boolean
+        +addReview(Review): void
+        +getAverageRating(): double
+        +getReviews(): List<Review>
+    }
+    
+    class CustomTrip {
+        -customer: Customer
+        -customServices: List<Activity>
+        -itinerary: Itinerary
+        -startDate: LocalDate
+        -endDate: LocalDate
+        +calculateTotalPrice(): double
+        +addService(Activity): void
+        +addServices(List<Activity>): void
+        +removeService(Activity): void
+    }
+    
+    class Customer {
+        -id: String
+        -name: String
+        -email: String
+        -phone: String
+        -address: String
+        -preferences: String
+        -bookingHistory: List<Booking>
+        +addBooking(Booking): void
+    }
+    
+    class Booking {
+        -id: String
+        -customer: Customer
+        -travelPackage: TravelPackage
+        -bookingDate: LocalDate
+        -travelDate: LocalDate
+        -passengers: int
+        -totalAmount: double
+        -status: BookingStatus
+        -payment: Payment
+        +calculateTotal(): double
+        +confirmBooking(): void
+        +cancelBooking(): void
+    }
+    
+    class Payment {
+        -id: String
+        -booking: Booking
+        -amount: double
+        -method: PaymentMethod
+        -date: LocalDate
+        -status: PaymentStatus
+        +processPayment(): boolean
+        +refundPayment(): boolean
+    }
+    
+    class Itinerary {
+        -id: String
+        -days: List<ItineraryDay>
+        +addDay(ItineraryDay): void
+        +removeDay(ItineraryDay): void
+        +getDuration(): int
+    }
+    
+    class ItineraryDay {
+        -dayNumber: int
+        -description: String
+        -activities: List<Activity>
+        -meals: String
+        -accommodation: String
+        +addActivity(Activity): void
+        +removeActivity(Activity): void
+    }
+    
+    class Activity {
+        -id: String
+        -name: String
+        -description: String
+        -duration: int
+        -cost: double
+        -location: String
+        +getCost(): double
+    }
+    
+    class Review {
+        -id: String
+        -customer: Customer
+        -rating: int
+        -comment: String
+        -date: LocalDate
+        +getRating(): int
+    }
+    
+    enum BookingStatus {
+        PENDING
+        CONFIRMED
+        CANCELLED
+        COMPLETED
+    }
+    
+    enum PaymentMethod {
+        CREDIT_CARD
+        BANK_TRANSFER
+        PAYPAL
+        CASH
+    }
+    
+    enum PaymentStatus {
+        PENDING
+        COMPLETED
+        FAILED
+        REFUNDED
+    }
+    
+    interface Bookable {
+        +calculatePrice(): double
+        +checkAvailability(): boolean
+        +makeReservation(): boolean
+    }
+    
+    interface Reviewable {
+        +addReview(Review): void
+        +getAverageRating(): double
+        +getReviews(): List<Review>
+    }
+    
+    TravelService <|-- TravelPackage
+    TravelService <|-- CustomTrip
+    TravelPackage ..|> Bookable
+    TravelPackage ..|> Reviewable
+    TravelPackage "1" *-- "1" Itinerary
+    TravelPackage "1" *-- "*" Activity
+    CustomTrip "1" *-- "1" Itinerary
+    CustomTrip "1" *-- "*" Activity
+    Itinerary "1" *-- "*" ItineraryDay
+    ItineraryDay "1" *-- "*" Activity
+    Booking "1" *-- "1" Payment
+    Booking "*" -- "1" Customer
+    Booking "*" -- "1" TravelPackage
+    Review "*" -- "1" Customer
 }
-
-interface Reviewable {
-  +addReview(Review): void
-  +getAverageRating(): double
-  +getReviews(): ArrayList<Review>
-}
-
-' Abstract classes
-abstract class TravelService {
-  #serviceId: String
-  #name: String
-  #description: String
-  #basePrice: double
-  +TravelService(params)
-  +{abstract} calculateTotalPrice(): double
-}
-
-' Concrete classes
-class TravelPackage {
-  -destination: String
-  -duration: int
-  -accommodation: String
-  -activities: ArrayList<Activity>
-  -reviews: ArrayList<Review>
-  +TravelPackage(params)
-  +calculateTotalPrice(): double
-  +getItinerary(): Itinerary
-}
-
-class CustomTrip {
-  -customer: Customer
-  -destinations: ArrayList<String>
-  -services: ArrayList<TravelService>
-  +CustomTrip(params)
-  +calculateTotalPrice(): double
-  +addService(TravelService): void
-}
-
-class Activity {
-  -activityId: String
-  -location: String
-  -duration: int
-  -cost: double
-  +Activity(params)
-  +getCost(): double
-}
-
-class Customer {
-  -customerId: String
-  -name: String
-  -email: String
-  -phone: String
-  -bookings: ArrayList<Booking>
-  +Customer(params)
-  +addBooking(Booking): void
-  +getBookingHistory(): ArrayList<Booking>
-}
-
-class Booking {
-  -bookingId: String
-  -customer: Customer
-  -service: TravelService
-  -date: Date
-  -status: BookingStatus
-  -payment: Payment
-  +Booking(params)
-  +calculateTotal(): double
-  +updateStatus(BookingStatus): void
-}
-
-class Review {
-  -reviewId: String
-  -customer: Customer
-  -rating: int
-  -comment: String
-  -date: Date
-  +Review(params)
-  +getRating(): int
-  +getComment(): String
-}
-
-enum BookingStatus {
-  PENDING
-  CONFIRMED
-  CANCELED
-}
-
-class Payment {
-  -paymentId: String
-  -amount: double
-  -method: PaymentMethod
-  -status: PaymentStatus
-  +Payment(params)
-  +processPayment(): boolean
-}
-
-class Itinerary {
-  -itineraryId: String
-  -days: ArrayList<ItineraryDay>
-  +Itinerary(params)
-  +addDay(ItineraryDay): void
-  +getTotalDuration(): int
-}
-
-class ItineraryDay {
-  -dayNumber: int
-  -activities: ArrayList<Activity>
-  -notes: String
-  +ItineraryDay(params)
-  +addActivity(Activity): void
-}
-
-' Relationships
-TravelService <|-- TravelPackage
-TravelService <|-- CustomTrip
-Bookable <|.. TravelPackage
-Bookable <|.. CustomTrip
-Reviewable <|.. TravelPackage
-
-Customer "1" -- "many" Booking
-TravelService "1" -- "many" Booking
-Booking "1" -- "1" Payment
-TravelPackage "1" -- "many" Activity
-TravelPackage "1" -- "1" Itinerary
-Itinerary "1" -- "many" ItineraryDay
-ItineraryDay "1" -- "many" Activity
-Customer "1" -- "many" Review
-TravelPackage "1" -- "many" Review
-
 @enduml

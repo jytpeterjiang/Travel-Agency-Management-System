@@ -34,10 +34,30 @@ public class TravelAgencyController {
     public void loadData() {
         dataManager.loadData();
         
+        // Create sample activities if none exist
+        if (getActivities().isEmpty()) {
+            createSampleActivities();
+        }
+        
         // Add a sample review for testing if there are no reviews
         if (getReviews().isEmpty() && !getAllCustomers().isEmpty() && !getAllTravelPackages().isEmpty()) {
             createSampleReviews();
         }
+    }
+    
+    /**
+     * Create sample activities for testing.
+     */
+    private void createSampleActivities() {
+        System.out.println("Creating sample activities");
+        createActivity("City Tour", "Paris", 4, 50.0);
+        createActivity("Beach Day", "Hawaii", 6, 30.0);
+        createActivity("Mountain Hiking", "Alps", 8, 75.0);
+        createActivity("Wine Tasting", "Napa Valley", 3, 45.0);
+        createActivity("Safari Adventure", "Kenya", 10, 150.0);
+        
+        // Save immediately to persist activities
+        dataManager.saveData();
     }
     
     /**
@@ -147,6 +167,43 @@ public class TravelAgencyController {
      */
     public void addActivityToPackage(TravelPackage travelPackage, Activity activity) {
         travelPackage.addActivity(activity);
+    }
+    
+    /**
+     * Remove an activity from a travel package.
+     * 
+     * @param travelPackage the travel package
+     * @param activity the activity to remove
+     * @return true if successfully removed, false otherwise
+     */
+    public boolean removeActivityFromPackage(TravelPackage travelPackage, Activity activity) {
+        if (travelPackage == null || activity == null) {
+            return false;
+        }
+        
+        // Check if the activity is in the itinerary
+        Itinerary itinerary = travelPackage.getItinerary();
+        if (itinerary != null) {
+            for (ItineraryDay day : itinerary.getDays()) {
+                if (day.getActivities().contains(activity)) {
+                    // Cannot remove activities that are in the itinerary
+                    return false;
+                }
+            }
+        }
+        
+        // Get the original activities list
+        ArrayList<Activity> activities = travelPackage.getActivities();
+        
+        // Find and remove the activity
+        for (int i = 0; i < activities.size(); i++) {
+            if (activities.get(i).getActivityId().equals(activity.getActivityId())) {
+                activities.remove(i);
+                return true;
+            }
+        }
+        
+        return false;
     }
     
     /**
@@ -638,5 +695,14 @@ public class TravelAgencyController {
         }
         
         return result;
+    }
+    
+    /**
+     * Get all activities.
+     * 
+     * @return an ArrayList of all activities
+     */
+    public ArrayList<Activity> getActivities() {
+        return dataManager.getActivities();
     }
 } 

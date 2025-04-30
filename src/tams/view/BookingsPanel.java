@@ -35,6 +35,7 @@ public class BookingsPanel extends BasePanel {
     private JButton deleteButton;
     private JButton viewButton;
     private JButton updateStatusButton;
+    private JButton processPaymentButton;
     
     // Date formatter
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -175,6 +176,7 @@ public class BookingsPanel extends BasePanel {
         deleteButton = createButton("Delete");
         viewButton = createButton("View");
         updateStatusButton = createButton("Update Status");
+        processPaymentButton = createButton("Process Payment");
         
         // Button action listeners
         addButton.addActionListener(e -> showAddBookingDialog());
@@ -182,37 +184,37 @@ public class BookingsPanel extends BasePanel {
         deleteButton.addActionListener(e -> deleteSelectedBooking());
         viewButton.addActionListener(e -> viewBookingDetails());
         updateStatusButton.addActionListener(e -> showUpdateStatusDialog());
+        processPaymentButton.addActionListener(e -> showProcessPaymentDialog());
         
         // Initially disable buttons that require selection
         editButton.setEnabled(false);
         deleteButton.setEnabled(false);
         viewButton.setEnabled(false);
         updateStatusButton.setEnabled(false);
+        processPaymentButton.setEnabled(false);
         
         buttonPanel.add(addButton);
         buttonPanel.add(editButton);
         buttonPanel.add(deleteButton);
         buttonPanel.add(viewButton);
         buttonPanel.add(updateStatusButton);
+        buttonPanel.add(processPaymentButton);
     }
     
     /**
      * Update the enabled state of buttons based on selection.
      */
     private void updateButtonStates() {
-        boolean hasSelection = (selectedBooking != null);
+        boolean hasSelection = selectedBooking != null;
         
         editButton.setEnabled(hasSelection);
+        deleteButton.setEnabled(hasSelection);
         viewButton.setEnabled(hasSelection);
         updateStatusButton.setEnabled(hasSelection);
         
-        // Only enable delete button if not completed or cancelled
-        if (hasSelection) {
-            BookingStatus status = selectedBooking.getStatus();
-            deleteButton.setEnabled(status != BookingStatus.COMPLETED && status != BookingStatus.CANCELLED);
-        } else {
-            deleteButton.setEnabled(false);
-        }
+        // Only enable payment processing for bookings that are PENDING
+        processPaymentButton.setEnabled(hasSelection && 
+            selectedBooking.getStatus() == BookingStatus.PENDING);
     }
     
     /**
@@ -688,6 +690,17 @@ public class BookingsPanel extends BasePanel {
               .append("  Number of Travelers: ").append(selectedBooking.getNumTravelers()).append("\n")
               .append("  Total Price: $").append(String.format("%.2f", selectedBooking.getTotalPrice())).append("\n");
         
+        // Add payment details if available
+        if (selectedBooking.getPayment() != null) {
+            Payment payment = selectedBooking.getPayment();
+            details.append("\nPayment Information:\n")
+                  .append("  Payment ID: ").append(payment.getPaymentId()).append("\n")
+                  .append("  Amount: $").append(String.format("%.2f", payment.getAmount())).append("\n")
+                  .append("  Method: ").append(payment.getMethod()).append("\n")
+                  .append("  Status: ").append(payment.getStatus()).append("\n")
+                  .append("  Date: ").append(dateFormat.format(payment.getPaymentDate())).append("\n");
+        }
+        
         if (!selectedBooking.getSpecialRequests().isEmpty()) {
             details.append("\nSpecial Requests:\n")
                   .append(selectedBooking.getSpecialRequests()).append("\n");
@@ -786,6 +799,131 @@ public class BookingsPanel extends BasePanel {
                 JOptionPane.showMessageDialog(dialog, 
                     "Error updating status: " + ex.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        
+        dialog.pack();
+        dialog.setLocationRelativeTo(mainWindow);
+        dialog.setVisible(true);
+    }
+    
+    /**
+     * Show dialog to process payment for the selected booking.
+     */
+    private void showProcessPaymentDialog() {
+        if (selectedBooking == null) {
+            return;
+        }
+        
+        // Check if payment already processed
+        if (selectedBooking.getPayment() != null && 
+            selectedBooking.getPayment().getStatus() == PaymentStatus.COMPLETED) {
+            JOptionPane.showMessageDialog(this,
+                "Payment has already been processed for this booking.",
+                "Payment Information", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        
+        // Check if the booking status is appropriate
+        if (selectedBooking.getStatus() != BookingStatus.PENDING) {
+            JOptionPane.showMessageDialog(this,
+                "Payment can only be processed for pending bookings.",
+                "Payment Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        JDialog dialog = new JDialog(mainWindow, "Process Payment", true);
+        dialog.setLayout(new BorderLayout());
+        
+        JPanel formPanel = new JPanel(new BorderLayout(10, 10));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        
+        // Booking info panel
+        JPanel infoPanel = new JPanel(new GridLayout(4, 1, 5, 5));
+        infoPanel.setBorder(BorderFactory.createTitledBorder("Booking Information"));
+        infoPanel.add(new JLabel("Booking ID: " + selectedBooking.getBookingId()));
+        infoPanel.add(new JLabel("Customer: " + selectedBooking.getCustomer().getName()));
+        infoPanel.add(new JLabel("Package: " + selectedBooking.getPackage().getName()));
+        infoPanel.add(new JLabel("Total Amount: $" + String.format("%.2f", selectedBooking.getTotalPrice())));
+        
+        // Payment form
+        JPanel paymentPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+        paymentPanel.setBorder(BorderFactory.createTitledBorder("Payment Details"));
+        
+        // Payment amount
+        JPanel amountPanel = new JPanel(new BorderLayout(5, 5));
+        amountPanel.add(new JLabel("Amount ($): "), BorderLayout.WEST);
+        JTextField amountField = new JTextField(String.format("%.2f", selectedBooking.getTotalPrice()));
+        amountPanel.add(amountField, BorderLayout.CENTER);
+        
+        // Payment method
+        JPanel methodPanel = new JPanel(new BorderLayout(5, 5));
+        methodPanel.add(new JLabel("Payment Method: "), BorderLayout.WEST);
+        JComboBox<PaymentMethod> methodComboBox = new JComboBox<>(PaymentMethod.values());
+        methodComboBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, 
+                    int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value != null) {
+                    setText(value.toString());
+                }
+                return this;
+            }
+        });
+        methodPanel.add(methodComboBox, BorderLayout.CENTER);
+        
+        paymentPanel.add(amountPanel);
+        paymentPanel.add(methodPanel);
+        
+        formPanel.add(infoPanel, BorderLayout.NORTH);
+        formPanel.add(paymentPanel, BorderLayout.CENTER);
+        
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton processButton = new JButton("Process Payment");
+        JButton cancelButton = new JButton("Cancel");
+        
+        buttonPanel.add(processButton);
+        buttonPanel.add(cancelButton);
+        
+        dialog.add(formPanel, BorderLayout.CENTER);
+        dialog.add(buttonPanel, BorderLayout.SOUTH);
+        
+        // Set button actions
+        cancelButton.addActionListener(e -> dialog.dispose());
+        
+        processButton.addActionListener(e -> {
+            try {
+                double amount = Double.parseDouble(amountField.getText());
+                PaymentMethod method = (PaymentMethod) methodComboBox.getSelectedItem();
+                
+                if (amount <= 0) {
+                    JOptionPane.showMessageDialog(dialog,
+                        "Payment amount must be greater than zero.",
+                        "Input Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                
+                boolean success = controller.processPayment(selectedBooking, amount, method);
+                
+                if (success) {
+                    String customerName = selectedBooking.getCustomer().getName();
+                    dialog.dispose();
+                    refreshData();
+                    updateStatus("Payment processed successfully for " + customerName);
+                } else {
+                    JOptionPane.showMessageDialog(dialog,
+                        "Payment processing failed.",
+                        "Payment Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(dialog,
+                    "Please enter a valid payment amount.",
+                    "Input Error", JOptionPane.ERROR_MESSAGE);
+            } catch (PaymentProcessException ex) {
+                JOptionPane.showMessageDialog(dialog,
+                    "Payment processing error: " + ex.getMessage(),
+                    "Payment Error", JOptionPane.ERROR_MESSAGE);
             }
         });
         

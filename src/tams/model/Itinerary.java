@@ -36,6 +36,26 @@ public class Itinerary {
     }
     
     /**
+     * Remove a day from this itinerary.
+     * 
+     * @param day the ItineraryDay to remove
+     * @return true if the day was removed, false if it was not found
+     */
+    public boolean removeDay(ItineraryDay day) {
+        return days.removeIf(d -> d.getDayNumber() == day.getDayNumber());
+    }
+    
+    /**
+     * Remove a day by its day number.
+     * 
+     * @param dayNumber the day number to remove
+     * @return true if the day was removed, false if it was not found
+     */
+    public boolean removeDayByNumber(int dayNumber) {
+        return days.removeIf(d -> d.getDayNumber() == dayNumber);
+    }
+    
+    /**
      * Get the total duration of this itinerary in days.
      * 
      * @return the number of days
@@ -51,6 +71,16 @@ public class Itinerary {
      */
     public ArrayList<ItineraryDay> getDays() {
         return new ArrayList<>(days);
+    }
+    
+    /**
+     * Get a directly modifiable reference to the internal days list.
+     * WARNING: Use with caution, as this allows direct modifications to the internal list.
+     * 
+     * @return the internal ArrayList of ItineraryDay objects
+     */
+    public ArrayList<ItineraryDay> getModifiableDays() {
+        return days;
     }
     
     /**

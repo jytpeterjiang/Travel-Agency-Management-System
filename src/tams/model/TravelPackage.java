@@ -156,8 +156,13 @@ public class TravelPackage extends TravelService implements Bookable, Reviewable
         this.accommodation = accommodation;
     }
     
+    /**
+     * Get the activities in this package.
+     * 
+     * @return the list of activities
+     */
     public ArrayList<Activity> getActivities() {
-        return new ArrayList<>(activities);
+        return activities;
     }
     
     public void setAvailable(boolean available) {

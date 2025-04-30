@@ -27,6 +27,7 @@ public class MainWindow extends JFrame {
     private BookingsPanel bookingsPanel;
     private ReportsPanel reportsPanel;
     private ReviewsPanel reviewsPanel;
+    private ActivitiesPanel activitiesPanel;
     
     // Menu items
     private JMenuBar menuBar;
@@ -38,6 +39,9 @@ public class MainWindow extends JFrame {
     // Status bar - initialize statusLabel immediately to prevent NullPointerException
     private JPanel statusBar;
     private JLabel statusLabel = new JLabel("Initializing...");
+    
+    // Add a class-level array to track initialized tabs
+    private boolean[] tabInitialized = new boolean[6];
     
     /**
      * Constructor for the main window.
@@ -92,25 +96,60 @@ public class MainWindow extends JFrame {
             try {
                 updateStatus("Creating panels...");
                 
-                // Create the panels
+                // Create all panel instances first without loading data
                 packagesPanel = new PackagesPanel(controller, this);
                 customersPanel = new CustomersPanel(controller, this);
                 bookingsPanel = new BookingsPanel(controller, this);
+                activitiesPanel = new ActivitiesPanel(controller, this);
                 reportsPanel = new ReportsPanel(controller, this);
                 reviewsPanel = new ReviewsPanel(controller, this);
                 
                 // Add panels to the tabbed pane
                 tabbedPane.addTab("Packages", new ImageIcon(), packagesPanel, "Manage travel packages");
+                tabbedPane.addTab("Activities", new ImageIcon(), activitiesPanel, "Manage activities");
                 tabbedPane.addTab("Customers", new ImageIcon(), customersPanel, "Manage customers");
                 tabbedPane.addTab("Bookings", new ImageIcon(), bookingsPanel, "Manage bookings");
                 tabbedPane.addTab("Reports", new ImageIcon(), reportsPanel, "View reports");
                 tabbedPane.addTab("Reviews", new ImageIcon(), reviewsPanel, "Manage reviews");
                 
-                // Add change listener to update status when tab changes
+                // Initialize only the first tab (Packages)
+                packagesPanel.refreshData();
+                tabInitialized[0] = true;
+                
+                // Add change listener to update status when tab changes and load data when first visited
                 tabbedPane.addChangeListener(e -> {
                     int index = tabbedPane.getSelectedIndex();
                     if (index != -1) {
                         updateStatus("Viewing " + tabbedPane.getTitleAt(index));
+                        
+                        // Load data for the tab if it hasn't been initialized yet
+                        if (!tabInitialized[index]) {
+                            updateStatus("Loading data for " + tabbedPane.getTitleAt(index) + "...");
+                            
+                            switch (index) {
+                                case 0: // Packages
+                                    if (packagesPanel != null) packagesPanel.refreshData();
+                                    break;
+                                case 1: // Activities
+                                    if (activitiesPanel != null) activitiesPanel.refreshData();
+                                    break;
+                                case 2: // Customers
+                                    if (customersPanel != null) customersPanel.refreshData();
+                                    break;
+                                case 3: // Bookings
+                                    if (bookingsPanel != null) bookingsPanel.refreshData();
+                                    break;
+                                case 4: // Reports
+                                    if (reportsPanel != null) reportsPanel.refreshData();
+                                    break;
+                                case 5: // Reviews
+                                    if (reviewsPanel != null) reviewsPanel.refreshData();
+                                    break;
+                            }
+                            
+                            tabInitialized[index] = true;
+                            updateStatus("Viewing " + tabbedPane.getTitleAt(index));
+                        }
                     }
                 });
                 
@@ -238,19 +277,25 @@ public class MainWindow extends JFrame {
                 case 0: // Packages
                     if (packagesPanel != null) packagesPanel.refreshData();
                     break;
-                case 1: // Customers
+                case 1: // Activities
+                    if (activitiesPanel != null) activitiesPanel.refreshData();
+                    break;
+                case 2: // Customers
                     if (customersPanel != null) customersPanel.refreshData();
                     break;
-                case 2: // Bookings
+                case 3: // Bookings
                     if (bookingsPanel != null) bookingsPanel.refreshData();
                     break;
-                case 3: // Reports
+                case 4: // Reports
                     if (reportsPanel != null) reportsPanel.refreshData();
                     break;
-                case 4: // Reviews
+                case 5: // Reviews
                     if (reviewsPanel != null) reviewsPanel.refreshData();
                     break;
             }
+            
+            // Mark this tab as initialized
+            tabInitialized[selectedIndex] = true;
             
             updateStatus("Data refreshed");
         } catch (Exception e) {

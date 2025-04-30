@@ -46,6 +46,26 @@ public class ItineraryDay {
     }
     
     /**
+     * Remove an activity from this day.
+     * 
+     * @param activity the activity to remove
+     * @return true if activity was removed, false if not found
+     */
+    public boolean removeActivity(Activity activity) {
+        return activities.remove(activity);
+    }
+    
+    /**
+     * Remove an activity by its ID.
+     * 
+     * @param activityId the ID of the activity to remove
+     * @return true if activity was removed, false if not found
+     */
+    public boolean removeActivityById(String activityId) {
+        return activities.removeIf(activity -> activity.getActivityId().equals(activityId));
+    }
+    
+    /**
      * Get all activities scheduled for this day.
      * 
      * @return an ArrayList of activities
