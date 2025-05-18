@@ -785,10 +785,12 @@ public class PackagesPanel extends BasePanel {
         
         // Available activities
         DefaultListModel<Activity> availableActivitiesModel = new DefaultListModel<>();
-        ArrayList<Activity> allActivities = controller.getActivities();
-        System.out.println("Adding " + allActivities.size() + " activities to the list");
         
-        for (Activity activity : allActivities) {
+        // Get activities associated with the selected package instead of all activities
+        ArrayList<Activity> packageActivities = packageRef.getActivities();
+        System.out.println("Adding " + packageActivities.size() + " package activities to the list");
+        
+        for (Activity activity : packageActivities) {
             availableActivitiesModel.addElement(activity);
         }
         

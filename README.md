@@ -39,54 +39,58 @@ The system is built using Java and Swing GUI, implementing several key concepts:
 The application follows the MVC (Model-View-Controller) architecture pattern:
 
 - **Model** (`src/tams/model/`): Contains all the business entities
+
   - Core classes: `TravelPackage`, `CustomTrip`, `Customer`, `Booking`, `Payment`
   - Support classes: `Itinerary`, `ItineraryDay`, `Activity`, `Review`
   - Enums: `BookingStatus`, `PaymentMethod`, `PaymentStatus`
   - Interfaces: `Bookable`, `Reviewable`
   - Abstract classes: `TravelService`
-
 - **View** (`src/tams/view/`): Contains the GUI components
+
   - Main container: `MainWindow` (with tabbed interface)
   - Abstract base: `BasePanel`
   - Feature panels: `PackagesPanel`, `TravelPackagesPanel`, `CustomersPanel`, `BookingsPanel`, `ActivitiesPanel`, `ReviewsPanel`, `ReportsPanel`
-
 - **Controller** (`src/tams/controller/`): Handles application logic
+
   - `TravelAgencyController`: Coordinates between views and model objects
-
 - **Util** (`src/tams/util/`): Helper classes
-  - `DataManager`: Handles file I/O operations and data persistence
 
+  - `DataManager`: Handles file I/O operations and data persistence
 - **Exceptions** (`src/tams/exceptions/`): Custom exceptions
+
   - `BookingException`: For booking-related errors
   - `PaymentProcessException`: For payment processing errors
+- **Database** (`src/data`): JSON database files
+
+  - `customers.json`: Customer information
+  - `packages.json`: Travel package details
+  - `bookings.json`: Booking records
+  - `reviews.json`: Customer reviews
+  - `activities.json`: Activity information
 
 ## Getting Started
 
-### Prerequisites
+### Prerequisites(The author's suggestions are indicated in parentheses)
 
-- Java 11 or higher
-- JSON library for data persistence
+- Java 11 or higher(JDK 23, and ensure that the environment variables have been added)
+- Maven for dependency management(apache-maven-3.9.9)
+- JSON library for data persistence(json-simple-1.1.1, or you can install it by maven)
 
 ### Installation
 
-1. Clone this repository
+1. Clone this repository from github or download the ZIP file from iSpace
 2. Compile the project:
+
    ```
-   javac -d bin src/tams/**/*.java
+   compile.bat
    ```
+
+   Then a `target` folder will be generated, which contains the compiled classes and jar file.
 3. Run the application:
-   ```
-   java -cp bin tams.Main
-   ```
 
-## Data Storage
-
-The application uses JSON files for data persistence:
-- `customers.json`: Customer information
-- `packages.json`: Travel package details
-- `bookings.json`: Booking records
-- `reviews.json`: Customer reviews
-- `activities.json`: Activity information
+   ```
+   run.bat
+   ```
 
 ## OOP Concepts Demonstrated
 
@@ -101,6 +105,7 @@ The application uses JSON files for data persistence:
 ## Exception Handling
 
 The system includes custom exceptions:
+
 - `BookingException`: Handles errors in the booking process
 - `PaymentProcessException`: Manages payment-related errors
 
@@ -114,4 +119,4 @@ The system includes custom exceptions:
 
 ## Author
 
-Peter Jiang 
+Peter Jiang

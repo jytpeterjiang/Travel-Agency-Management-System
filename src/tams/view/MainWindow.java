@@ -190,7 +190,7 @@ public class MainWindow extends JFrame {
         JMenuItem preferencesItem = new JMenuItem("Preferences");
         preferencesItem.addActionListener(e -> {
             // Placeholder for preferences dialog
-            JOptionPane.showMessageDialog(this, "Preferences dialog would appear here.");
+            JOptionPane.showMessageDialog(this, "Developing!");
         });
         
         editMenu.add(preferencesItem);

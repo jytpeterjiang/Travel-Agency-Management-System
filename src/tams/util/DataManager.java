@@ -23,7 +23,7 @@ import tams.model.*;
  */
 public class DataManager {
     
-    private static final String DATA_DIR = "data";
+    private static final String DATA_DIR = "src/data";
     private static final String CUSTOMERS_FILE = DATA_DIR + File.separator + "customers.json";
     private static final String PACKAGES_FILE = DATA_DIR + File.separator + "packages.json";
     private static final String BOOKINGS_FILE = DATA_DIR + File.separator + "bookings.json";
