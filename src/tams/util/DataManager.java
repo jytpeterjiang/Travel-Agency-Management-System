@@ -70,11 +70,32 @@ public class DataManager {
      * Load all data from files.
      */
     public void loadData() {
+        // Clear collections before loading
+        customers.clear();
+        packages.clear();
+        bookings.clear();
+        reviews.clear();
+        activities.clear();
+        
+        // Clear maps before loading
+        customerMap.clear();
+        packageMap.clear();
+        bookingMap.clear();
+        reviewMap.clear();
+        activityMap.clear();
+        
+        // Load all data from files
         loadActivities();
         loadCustomers();
         loadPackages();
         loadBookings();
         loadReviews();
+        
+        System.out.println("Data loaded: " + packages.size() + " packages, " + 
+                 customers.size() + " customers, " + 
+                 bookings.size() + " bookings, " + 
+                 activities.size() + " activities, " + 
+                 reviews.size() + " reviews");
     }
     
     /**
@@ -319,6 +340,8 @@ public class DataManager {
     private void savePackages() {
         JSONArray packagesArray = new JSONArray();
         
+        System.out.println("Saving " + packages.size() + " packages to file");
+        
         for (TravelPackage travelPackage : packages) {
             JSONObject packageJson = new JSONObject();
             packageJson.put("id", travelPackage.getServiceId());
@@ -369,6 +392,7 @@ public class DataManager {
         
         try (FileWriter file = new FileWriter(PACKAGES_FILE)) {
             file.write(packagesArray.toJSONString());
+            System.out.println("Successfully wrote " + packages.size() + " packages to file");
         } catch (IOException e) {
             System.err.println("Error saving packages: " + e.getMessage());
         }
@@ -619,6 +643,7 @@ public class DataManager {
         boolean removed = packages.removeIf(p -> p.getServiceId().equals(packageId));
         if (removed) {
             packageMap.remove(packageId);
+            savePackages(); // Save changes immediately
         }
         return removed;
     }
@@ -693,5 +718,25 @@ public class DataManager {
         }
         
         return result;
+    }
+    
+    /**
+     * Remove an activity from the system.
+     * 
+     * @param activity the activity to remove
+     * @return true if the activity was successfully removed
+     */
+    public boolean removeActivity(Activity activity) {
+        if (activity == null) {
+            return false;
+        }
+        
+        String activityId = activity.getActivityId();
+        boolean removed = activities.removeIf(a -> a.getActivityId().equals(activityId));
+        if (removed) {
+            activityMap.remove(activityId);
+            saveActivities();
+        }
+        return removed;
     }
 } 

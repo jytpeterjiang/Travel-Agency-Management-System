@@ -7,8 +7,7 @@ public enum BookingStatus {
     PENDING("Pending"),
     CONFIRMED("Confirmed"),
     COMPLETED("Completed"),
-    CANCELED("Canceled"),
-    CANCELLED("Cancelled"); // Alias for CANCELED with British spelling
+    CANCELLED("Cancelled"); // Standard spelling used throughout the application
     
     private final String displayName;
     

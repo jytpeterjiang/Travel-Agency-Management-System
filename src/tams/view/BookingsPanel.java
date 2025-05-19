@@ -334,6 +334,10 @@ public class BookingsPanel extends BasePanel {
      * Show dialog to add a new booking.
      */
     private void showAddBookingDialog() {
+        // Make sure we have fresh data by cleaning up and reloading
+        controller.cleanupDataFiles();
+        controller.loadData();
+        
         // Get available customers and packages
         ArrayList<Customer> customers = controller.getAllCustomers();
         ArrayList<TravelPackage> packages = controller.getAllTravelPackages();

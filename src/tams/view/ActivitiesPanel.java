@@ -175,7 +175,16 @@ public class ActivitiesPanel extends BasePanel {
         // Button action listeners
         addButton.addActionListener(e -> showAddActivityDialog());
         editButton.addActionListener(e -> showEditActivityDialog());
-        deleteButton.addActionListener(e -> deleteSelectedActivity());
+        deleteButton.addActionListener(e -> {
+            if (selectedActivity != null) {
+                deleteSelectedActivity();
+            } else {
+                JOptionPane.showMessageDialog(this,
+                    "Please select an activity to delete.",
+                    "No Selection",
+                    JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
         viewButton.addActionListener(e -> viewActivityDetails());
         
         // Initially disable buttons that require selection
@@ -549,22 +558,16 @@ public class ActivitiesPanel extends BasePanel {
                 return;
             }
             
-            // Perform deletion
-            boolean success = controller.getActivities().remove(selectedActivity);
+            // Perform deletion using controller method
+            String activityName = selectedActivity.getName();
+            boolean success = controller.removeActivity(selectedActivity);
             
             if (success) {
-                // Save data
-                controller.saveData();
-                
                 // Refresh the table
                 refreshData();
                 
                 // Update status
-                updateStatus("Activity deleted: " + selectedActivity.getName());
-                
-                // Reset selected activity
-                selectedActivity = null;
-                updateButtonStates();
+                updateStatus("Activity deleted: " + activityName);
             } else {
                 JOptionPane.showMessageDialog(this,
                     "Failed to delete the activity.",

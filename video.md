@@ -26,6 +26,7 @@
 
 最后，每次操作都有对应的状态显示。
 
+Hi, my name is Jiang Yutao, student ID: now I am going to introduce my travel agency management system
 
 First, we go to the travel packages panel. Click "Add", enter your bag information, click "Add", and then this bag will be displayed on the right side.
 

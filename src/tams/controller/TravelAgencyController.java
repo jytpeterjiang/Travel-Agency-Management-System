@@ -43,6 +43,9 @@ public class TravelAgencyController {
         if (getReviews().isEmpty() && !getAllCustomers().isEmpty() && !getAllTravelPackages().isEmpty()) {
             createSampleReviews();
         }
+        
+        // Clean up any inconsistencies in the data files
+        cleanupDataFiles();
     }
     
     /**
@@ -310,8 +313,8 @@ public class TravelAgencyController {
             throw new BookingException("Invalid booking.");
         }
         
-        if (booking.getStatus() == BookingStatus.CANCELED) {
-            throw new BookingException("Booking is already canceled.");
+        if (booking.getStatus() == BookingStatus.CANCELLED) {
+            throw new BookingException("Booking is already cancelled.");
         }
         
         boolean success = booking.cancelBooking();
@@ -459,9 +462,7 @@ public class TravelAgencyController {
         
         // Remove package from data manager
         boolean result = dataManager.removePackage(travelPackage);
-        if (result) {
-            saveData(); // Save changes to disk
-        }
+        // Save all other data (no need to call saveData since DataManager.removePackage now saves packages)
         return result;
     }
     
@@ -626,11 +627,8 @@ public class TravelAgencyController {
      * @return true if deletion was successful
      */
     public boolean deleteTravelPackage(TravelPackage travelPackage) {
-        if (travelPackage == null || isPackageInUse(travelPackage)) {
-            return false;
-        }
-        
-        return dataManager.removePackage(travelPackage);
+        // This method is redundant with deletePackage, so we'll just call that method
+        return deletePackage(travelPackage);
     }
     
     /**
@@ -700,9 +698,42 @@ public class TravelAgencyController {
     /**
      * Get all activities.
      * 
-     * @return an ArrayList of all activities
+     * @return ArrayList of all activities
      */
     public ArrayList<Activity> getActivities() {
         return dataManager.getActivities();
+    }
+    
+    /**
+     * Remove an activity from the system.
+     * 
+     * @param activity the activity to remove
+     * @return true if successfully removed, false otherwise
+     */
+    public boolean removeActivity(Activity activity) {
+        if (activity == null) {
+            return false;
+        }
+        
+        // First check if the activity is used in any package
+        for (TravelPackage pkg : getAllTravelPackages()) {
+            if (pkg.getActivities().contains(activity)) {
+                return false; // Cannot remove an activity that's in use
+            }
+        }
+        
+        // If not in use, remove it
+        return dataManager.removeActivity(activity);
+    }
+    
+    /**
+     * Clean up data files by removing deleted entities.
+     * This ensures the JSON files only contain active data.
+     */
+    public void cleanupDataFiles() {
+        // We just need to save the current data to rewrite the files
+        // The DataManager will only save active entities from memory
+        dataManager.saveData();
+        System.out.println("Data files cleaned up successfully");
     }
 } 

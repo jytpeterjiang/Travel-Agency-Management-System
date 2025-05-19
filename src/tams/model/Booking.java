@@ -100,8 +100,8 @@ public class Booking {
      */
     public boolean cancelBooking() {
         // In a real system, we might check cancellation policy, apply fees, etc.
-        if (status != BookingStatus.CANCELED) {
-            status = BookingStatus.CANCELED;
+        if (status != BookingStatus.CANCELLED) {
+            status = BookingStatus.CANCELLED;
             return true;
         }
         return false;

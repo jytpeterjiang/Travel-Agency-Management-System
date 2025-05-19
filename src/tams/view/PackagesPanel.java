@@ -609,6 +609,9 @@ public class PackagesPanel extends BasePanel {
                 // Delete the package from the controller
                 controller.deletePackage(selectedPackage);
                 
+                // Clean up data files to ensure deleted packages don't appear in dropdown lists
+                controller.cleanupDataFiles();
+                
                 refreshData();
                 updateStatus("Package deleted: " + packageName);
             } catch (Exception e) {

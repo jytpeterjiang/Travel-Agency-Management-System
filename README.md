@@ -72,25 +72,33 @@ The application follows the MVC (Model-View-Controller) architecture pattern:
 
 ### Prerequisites(The author's suggestions are indicated in parentheses)
 
-- Java 11 or higher(JDK 23, and ensure that the environment variables have been added)
-- Maven for dependency management(apache-maven-3.9.9)
-- JSON library for data persistence(json-simple-1.1.1, or you can install it by maven)
+- Java 11 or higher(JDK 23, and ensure the environment variables have been added)
+- Maven for dependency management(apache-maven-3.9.9, and ensure the environment variables have been added)
+- JSON library for data persistence(json-simple-1.1.1, and you can install it by maven)
 
 ### Installation
 
 1. Clone this repository from github or download the ZIP file from iSpace
-2. Compile the project:
+2. Unzip the file
+3. Install Java and set environment variables(omit)
+4. If you don't have Maven, the Maven package is included in the project. Just need to add environment variables for Maven
+
+   ```
+   add_maven_to_path.bat
+   ```
+5. Compile the project:
 
    ```
    compile.bat
    ```
 
    Then a `target` folder will be generated, which contains the compiled classes and jar file.
-3. Run the application:
+6. Run the application:
 
    ```
    run.bat
    ```
+7. The application should start and display the main window.
 
 ## OOP Concepts Demonstrated
 
